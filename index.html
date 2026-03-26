@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--Responsive core tags, meeting mobile adaptation requirements-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory System - TypeScript Part1</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Inventory Management System</h1>
+        <!-- Operation area: minimalist form, retaining only core input items-->
+        <div class="input-section">
+            <input type="text" id="itemId" placeholder="Item ID (only)" required>
+            <input type="text" id="itemName" placeholder="Item Name (Required)" required>
+            <select id="category" required>
+                <option value="">Select Category</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Furniture">Furniture</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Tools">Tools</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+            </select>
+            <input type="number" id="quantity" placeholder="Quantity (Required)" min="0" required>
+            <input type="number" id="price" placeholder="Price (Required)" min="0" step="0.01" required>
+            <input type="text" id="supplier" placeholder="Supplier Name (Required)" required>
+            <select id="stockStatus" required>
+                <option value="">Stock Status</option>
+                <option value="In Stock">In Stock</option>
+                <option value="Low Stock">Low Stock</option>
+                <option value="Out of Stock">Out of Stock</option>
+            </select>
+            <select id="isPopular" required>
+                <option value="">Popular Item?</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+            <textarea id="comment" placeholder="Comment on item (optional)"></textarea>
+            <button id="addBtn">Add Item</button>
+        </div>
+        <!--Interactive feedback area-->
+        <div class="feedback" id="feedback"></div>
+        <!--Data display area-->
+        <div class="display-section">
+            <h2>Inventory List</h2>
+            <div id="inventoryList"></div>
+        </div>
+    </div>
+    <!-- Import the JS file compiled from TypeScript-->
+    <script src="app.js"></script>
+</body>
+</html>

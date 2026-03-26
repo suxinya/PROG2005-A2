@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "ES6",                          // Compiled to ES6, compatible with all browsers
+        "module": "ES6",                          // Module Specification
+        "outFile": "./app.js",                    // After compiling, a single app.js file will be output
+        "strict": true,                           // Strict type checking
+        "esModuleInterop": true,                  // Compatible module import
+        "skipLibCheck": true,                     // Skip library check
+        "forceConsistentCasingInFileNames": true  // 强Ensure file names are case-consistent
+    },
+    "include": ["./app.ts"]
+}
