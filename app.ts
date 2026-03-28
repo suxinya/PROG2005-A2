@@ -52,7 +52,7 @@ const addBtn = document.getElementById('addBtn') as HTMLButtonElement;
 const inventoryList = document.getElementById('inventoryList') as HTMLDivElement;
 
 // Utility function 1: Display feedback information
-export function showFeedback(message: string, isSuccess: boolean) {
+function showFeedback(message: string, isSuccess: boolean) {
     feedback.textContent = message;
     feedback.className = 'feedback ' + (isSuccess ? 'success' : 'error');
     // Hide feedback after 3 seconds
@@ -62,12 +62,12 @@ export function showFeedback(message: string, isSuccess: boolean) {
 }
 
 // Utility function 2: Verify whether the Item ID is unique
-export function isItemIdUnique(id: string): boolean {
+function isItemIdUnique(id: string): boolean {
     return !inventory.some(item => item.itemId === id);
 }
 
 // Tool function 3: Basic data verification
-export function validateInput(data: Partial<InventoryItem>): boolean {
+function validateInput(data: Partial<InventoryItem>): boolean {
     // Check whether the required fields are empty
     if (!data.itemId || !data.itemName || !data.category || !data.quantity || !data.price || !data.supplierName || !data.stockStatus || !data.isPopular) {
         showFeedback('All fields marked with "*" are required and cannot be empty!', false);
@@ -86,30 +86,67 @@ export function validateInput(data: Partial<InventoryItem>): boolean {
     return true;
 }
 
-// Initialization page: Display test data
-function initPage() {
-    renderInventoryList();
+//Day2 New: Auxiliary function - Clear all input boxes
+function clearInputFields() {
+    itemIdInput.value = '';
+    itemNameInput.value = '';
+    categoryInput.value = '';
+    quantityInput.value = '';
+    priceInput.value = '';
+    supplierInput.value = '';
+    stockStatusInput.value = '';
+    isPopularInput.value = '';
+    commentInput.value = '';
 }
 
-// Render the inventory list to the page
+//Day2 Enhancement: Core Function - Add Product
+function addItem() {
+    // 1. Obtain and format the input box value
+    const newItem: InventoryItem = {
+        itemId: itemIdInput.value.trim(),
+        itemName: itemNameInput.value.trim(),
+        category: categoryInput.value as InventoryItem['category'],
+        quantity: Number(quantityInput.value),
+        price: Number(priceInput.value),
+        supplierName: supplierInput.value.trim(),
+        stockStatus: stockStatusInput.value as InventoryItem['stockStatus'],
+        isPopular: isPopularInput.value as InventoryItem['isPopular'],
+        comment: commentInput.value.trim() || undefined // If the comment is empty, it will be set to undefined
+    };
+
+    // 2. Perform data verification, and only add the data after it passes the verification
+    if (validateInput(newItem)) {
+        inventory.push(newItem); // Add to inventory array
+        renderInventoryList();   // Rerender the list and update it in real time
+        clearInputFields();      // Clear the input box
+        showFeedback('The product has been successfully added!', true); // success feedback
+    }
+}
+
+// Render inventory list
 function renderInventoryList() {
-    inventoryList.innerHTML = ''; // Clear the original content
+    inventoryList.innerHTML = ''; // Clear the existing content to avoid redundant rendering
+    // Traverse the inventory array and dynamically generate DOM
     inventory.forEach(item => {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'inventory-item';
+        // Optimization: The price is rounded to two decimal places, and if the comment is empty, it will not be displayed
         itemDiv.innerHTML = `
-            <h3>${item.itemName} (ID: ${item.itemId})</h3>
-            <p>Category: ${item.category}</p>
-            <p>Quantity: ${item.quantity} | Price: $${item.price.toFixed(2)}</p>
-            <p>Supplier: ${item.supplierName}</p>
-            <p>Stock Status: ${item.stockStatus} | Popular: ${item.isPopular}</p>
-            ${item.comment ? `<p>Comment: ${item.comment}</p>` : ''}
+            <h3>${item.itemName} <small>(ID: ${item.itemId})</small></h3>
+            <p><strong>Classification:</strong>${item.category}</p>
+            <p><strong>Quantity:</strong>${item.quantity} | <strong>Price:</strong>$${item.price.toFixed(2)}</p>
+            <p><strong>Supplier:</strong>${item.supplierName}</p>
+            <p><strong>Stock status:</strong>${item.stockStatus} | <strong>Is it popular?</strong>${item.isPopular}</p>
+            ${item.comment ? `<p><strong>Note:</strong>${item.comment}</p>` : ''}
         `;
         inventoryList.appendChild(itemDiv);
     });
 }
 
-//Page initialization
+//Day2 New: Page initialization + Binding the add button click event
+function initPage() {
+    renderInventoryList(); // Initialize rendering test data
+    addBtn.addEventListener('click', addItem); // Bind add button
+}
+// Launch the application
 initPage();
-
-// The add button event has not been bound yet (completed on Day 2)
