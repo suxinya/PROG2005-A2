@@ -23,6 +23,12 @@ let inventory = [
         isPopular: 'No'
     }
 ];
+// New on Day 3: DOM elements for obtaining edit/delete functionality
+const editItemNameInput = document.getElementById('editItemName');
+const editBtn = document.getElementById('editBtn');
+const saveEditBtn = document.getElementById('saveEditBtn');
+const deleteItemNameInput = document.getElementById('deleteItemName');
+const deleteBtn = document.getElementById('deleteBtn');
 //Get DOM elements
 const feedback = document.getElementById('feedback');
 const itemIdInput = document.getElementById('itemId');
@@ -68,6 +74,15 @@ function validateInput(data) {
     }
     return true;
 }
+// Day 3: Tool Function 4- Find Inventory Items by Product Name
+function findItemByName(name) {
+    // Ignore case matching to enhance user experience
+    return inventory.find(item => item.itemName.toLowerCase() === name.trim().toLowerCase());
+}
+// Day 3: Tool Function 5- Search for Index of Inventory Items by Product Name
+function findItemIndexbyName(name) {
+    return inventory.findIndex(item => item.itemName.toLowerCase() === name.trim().toLowerCase());
+}
 //Day2 New: Auxiliary function - Clear all input boxes
 function clearInputFields() {
     itemIdInput.value = '';
@@ -79,6 +94,9 @@ function clearInputFields() {
     stockStatusInput.value = '';
     isPopularInput.value = '';
     commentInput.value = '';
+    //Day 3: Clear edit/delete input box
+    editItemNameInput.value = '';
+    deleteItemNameInput.value = '';
 }
 //Day2 Enhancement: Core Function - Add Product
 function addItem() {
@@ -102,6 +120,103 @@ function addItem() {
         showFeedback('The product has been successfully added!', true); // success feedback
     }
 }
+// Day 3: Core Function - Load Product Information to be Edited
+function loadEditItem() {
+    const itemName = editItemNameInput.value;
+    if (!itemName) {
+        showFeedback('Please enter the product name to be edited!', false);
+        return;
+    }
+    // Search for products by name
+    const targetItem = findItemByName(itemName);
+    if (!targetItem) {
+        showFeedback('No product with that name was found!', false);
+        return;
+    }
+    // Fill the product information into the input box, disable the ID input box
+    itemIdInput.value = targetItem.itemId;
+    itemIdInput.disabled = true; // Key: ID cannot be modified
+    itemNameInput.value = targetItem.itemName;
+    categoryInput.value = targetItem.category;
+    quantityInput.value = targetItem.quantity.toString();
+    priceInput.value = targetItem.price.toString();
+    supplierInput.value = targetItem.supplierName;
+    stockStatusInput.value = targetItem.stockStatus;
+    isPopularInput.value = targetItem.isPopular;
+    commentInput.value = targetItem.comment || '';
+    showFeedback('The product information has been loaded. After modification, click [Save Edit]!', true);
+}
+// Day 3: Core function - Save edited product information
+function saveEditItem() {
+    const originalName = editItemNameInput.value;
+    if (!originalName) {
+        showFeedback('Please load the product to be edited first!', false);
+        return;
+    }
+    const targetIndex = findItemIndexbyName(originalName);
+    if (targetIndex === -1) {
+        showFeedback('The product has been deleted and cannot be edited!', false);
+        return;
+    }
+    // Obtain the modified input value, and use the original value for the ID
+    const updatedItem = {
+        itemId: itemIdInput.value,
+        itemName: itemNameInput.value.trim(),
+        category: categoryInput.value,
+        quantity: Number(quantityInput.value),
+        price: Number(priceInput.value),
+        supplierName: supplierInput.value.trim(),
+        stockStatus: stockStatusInput.value,
+        isPopular: isPopularInput.value,
+        comment: commentInput.value.trim() || undefined
+    };
+    // Verify the modified data
+    if (!updatedItem.itemName || !updatedItem.category || updatedItem.quantity < 0 || updatedItem.price < 0 || !updatedItem.supplierName || !updatedItem.stockStatus || !updatedItem.isPopular) {
+        showFeedback('The modified field cannot be empty, and the quantity/price must be non negative!', false);
+        return;
+    }
+    // Update inventory array
+    inventory[targetIndex] = updatedItem;
+    renderInventoryList();
+    clearInputFields();
+    itemIdInput.disabled = false; // Enable ID input box
+    showFeedback('Product editing successful!', true);
+}
+// Day 3: Core Function - Delete Product
+function deleteItem() {
+    const itemName = deleteItemNameInput.value;
+    if (!itemName) {
+        showFeedback('Please enter the name of the product to be deleted!', false);
+        return;
+    }
+    const targetIndex = findItemIndexbyName(itemName);
+    if (targetIndex === -1) {
+        showFeedback('No product with that name was found!', false);
+        return;
+    }
+    // Custom confirmation feedback
+    feedback.innerHTML = `
+        Are you sure to delete the item【${itemName}】? This operation cannot be restored!
+        <div class="confirm-buttons">
+            <button class="confirm-btn confirm-yes" id="confirmYes">确认删除</button>
+            <button class="confirm-btn confirm-no" id="confirmNo">取消</button>
+        </div>
+    `;
+    feedback.className = 'feedback error';
+    // Binding confirmation deletion event
+    document.getElementById('confirmYes').addEventListener('click', () => {
+        inventory.splice(targetIndex, 1); // Delete items from the array
+        renderInventoryList(); // re-render
+        clearInputFields(); // Clear the input box
+        feedback.innerHTML = '';
+        showFeedback('Product deleted successfully!', true);
+    });
+    // Bind cancellation event
+    document.getElementById('confirmNo').addEventListener('click', () => {
+        feedback.innerHTML = '';
+        showFeedback('The deletion has been canceled!', true);
+    });
+}
 // Render inventory list
 function renderInventoryList() {
     inventoryList.innerHTML = ''; // Clear the existing content to avoid redundant rendering
@@ -121,10 +236,15 @@ function renderInventoryList() {
         inventoryList.appendChild(itemDiv);
     });
 }
-//Day2 New: Page initialization + Binding the add button click event
+// Page initialization+event binding (Day3 edit/delete button binding)
 function initPage() {
-    renderInventoryList(); // Initialize rendering test data
-    addBtn.addEventListener('click', addItem); // Bind add button
+    renderInventoryList();
+    // Original add button
+    addBtn.addEventListener('click', addItem);
+    // Day 3: Edit/Delete Button Event Binding
+    editBtn.addEventListener('click', loadEditItem);
+    saveEditBtn.addEventListener('click', saveEditItem);
+    deleteBtn.addEventListener('click', deleteItem);
 }
 // Launch the application
 initPage();
